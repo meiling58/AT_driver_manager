@@ -1,0 +1,19 @@
+{
+    "fastest_scrape_browser": "firefox",
+    "fastest_interaction_browser": "chrome",
+    "overall_best": "chrome",
+    "selenium_startup": {
+        "firefox": 6.592,
+        "chrome": 3.901
+    },
+    "navigation_speed": {
+        "firefox": 0.407,
+        "chrome": 0.597
+    },
+    "infinite_scroll": {
+        "firefox": 3379,
+        "chrome": 2505
+    },
+    "requests_speed": 0.174,
+    "timestamp": "Tue Mar 10 17:26:05 2026"
+}
