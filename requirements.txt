@@ -1,0 +1,20 @@
+# Web Scraping
+selenium
+webdriver-manager
+requests
+bs4
+tqdm
+
+# Data Handling / Analysis
+pandas
+
+# System & Hardware Analysis
+psutil
+ollama
+
+# UI
+streamlit
+
+
+# Utilities
+python-dateutil

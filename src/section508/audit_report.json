@@ -1,0 +1,111 @@
+{
+    "url": "https://www.section508.gov",
+    "axe_violations": [],
+    "empty_links": [
+        "/",
+        "https://www.gsa.gov"
+    ],
+    "keyboard_trap": false,
+    "focus_path": [
+        {
+            "step": 1,
+            "tag": "A",
+            "text": "Read the FY 2025 Assessment Report"
+        },
+        {
+            "step": 2,
+            "tag": "A",
+            "text": "U.S. Access Board"
+        },
+        {
+            "step": 3,
+            "tag": "A",
+            "text": "final rule"
+        },
+        {
+            "step": 4,
+            "tag": "A",
+            "text": "Section 508 of the Rehabilitation Act"
+        },
+        {
+            "step": 5,
+            "tag": "A",
+            "text": "About Us"
+        },
+        {
+            "step": 6,
+            "tag": "A",
+            "text": "Micro-Purchases\nand Section 508 Requirements"
+        },
+        {
+            "step": 7,
+            "tag": "A",
+            "text": "IT Accessibility Laws and Policies"
+        },
+        {
+            "step": 8,
+            "tag": "A",
+            "text": "Accessibility Requirements Tool (ART)"
+        },
+        {
+            "step": 9,
+            "tag": "A",
+            "text": "Find Your Section 508 Program Manager"
+        },
+        {
+            "step": 10,
+            "tag": "A",
+            "text": "IT Accessibility Laws and Policies"
+        },
+        {
+            "step": 11,
+            "tag": "A",
+            "text": "Practical Reasons for Digital Accessibility"
+        },
+        {
+            "step": 12,
+            "tag": "A",
+            "text": "View a Playbook"
+        },
+        {
+            "step": 13,
+            "tag": "A",
+            "text": "Buy Accessible Products and Services"
+        },
+        {
+            "step": 14,
+            "tag": "A",
+            "text": "Annual Section 508 Assessment"
+        },
+        {
+            "step": 15,
+            "tag": "A",
+            "text": "View All"
+        },
+        {
+            "step": 16,
+            "tag": "A",
+            "text": "Buy Accessible Products and Services"
+        },
+        {
+            "step": 17,
+            "tag": "A",
+            "text": "Sell Accessible Products and Services"
+        },
+        {
+            "step": 18,
+            "tag": "A",
+            "text": "Accessibility Requirements Tool (ART)"
+        },
+        {
+            "step": 19,
+            "tag": "A",
+            "text": "ACR Editor"
+        },
+        {
+            "step": 20,
+            "tag": "A",
+            "text": "Create an ACR Using a VPAT\u00ae"
+        }
+    ]
+}

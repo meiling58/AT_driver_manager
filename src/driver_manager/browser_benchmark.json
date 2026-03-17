@@ -1,19 +1,22 @@
 {
-    "fastest_scrape_browser": "firefox",
-    "fastest_interaction_browser": "chrome",
-    "overall_best": "chrome",
-    "selenium_startup": {
-        "firefox": 6.592,
-        "chrome": 3.901
+    "fastest_engine": "playwright",
+    "fastest_browser": "firefox",
+    "overall_best_config": {
+        "engine": "playwright",
+        "browser": "firefox"
+    },
+    "startup_times": {
+        "playwright-chromium": 0.617,
+        "playwright-firefox": 1.986,
+        "selenium-chrome": 3.246,
+        "selenium-firefox": 6.691
     },
     "navigation_speed": {
-        "firefox": 0.407,
-        "chrome": 0.597
+        "playwright-chromium": 1.693,
+        "playwright-firefox": 0.363,
+        "selenium-chrome": 0.296,
+        "selenium-firefox": 0.374
     },
-    "infinite_scroll": {
-        "firefox": 3379,
-        "chrome": 2505
-    },
-    "requests_speed": 0.174,
-    "timestamp": "Tue Mar 10 17:26:05 2026"
+    "target_url": "https://ollama.com/library",
+    "timestamp": "Fri Mar 13 11:49:46 2026"
 }
