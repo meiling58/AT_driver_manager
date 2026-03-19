@@ -1,5 +1,9 @@
 # src/ollama_library/engines/ollama_selenium_hybrid.py
-# ⏱️ [selenium] find_all_data completed in 2 m 50.857238s
+# ⏱️ [selenium] find_all_data completed in 0 m 26.792062s
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import requests
+from bs4 import BeautifulSoup
 
 from src.driver_manager.manager import driver_context
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,7 +16,7 @@ from src.utils.runntime_tracker import track_runtime
 
 class OllamaScraper:
 
-    def __init__(self, browser='firefox', headless=True):
+    def __init__(self, browser='firefox', headless=True, max_workers=30):
         self.base_url = "https://ollama.com/library"
         self.ctx_manager = driver_context(engine="selenium", browser=browser, headless=headless)
         self.driver_bundle = self.ctx_manager.__enter__()
@@ -20,6 +24,8 @@ class OllamaScraper:
         self.wait = WebDriverWait(self.driver, 10)
         self.KNOWN_CAPABILITIES = set()
         self.models_xpath = '//*[@id="repo"]/ul/li'
+        self.max_workers = max_workers
+
 
     def open_ollama(self):
         self.driver.get(self.base_url)
@@ -58,75 +64,35 @@ class OllamaScraper:
 
     def get_model_tag_details(self, model_name):
         url = f"{self.base_url}/{model_name}/tags"
-        self.driver.get(url)
-        result = []
-        # Wait until first data row appears
+
         try:
-            self.wait.until(
-                EC.presence_of_element_located(
-                    (By.CSS_SELECTOR, "div.grid.grid-cols-12.items-center span.col-span-6 a")
-                )
-            )
-        except:
-            print(f"⚠ Timed out waiting for tag rows for {model_name}")
-            return result
-
-        # Find all data rows
-        rows = self.driver.find_elements(
-            By.CSS_SELECTOR, "div.grid.grid-cols-12.items-center"
-        )
-        for row in rows:
-            # Skip header row
-            if "bg-neutral-50" in row.get_attribute("class"):
-                continue
-
-            # Version name
-            try:
-                version = row.find_element(
-                    By.CSS_SELECTOR, "span.col-span-6 a"
-                ).text.strip()
-            except:
-                continue
-
-            # Size and Context → <p class="col-span-2">
-            p_cols = row.find_elements(By.CSS_SELECTOR, "p.col-span-2")
-            size = p_cols[0].text.strip() if len(p_cols) > 0 else ""
-            context = p_cols[1].text.strip() if len(p_cols) > 1 else ""
-
-            # Input → <div class="col-span-2">
-            d_cols = row.find_elements(By.CSS_SELECTOR, "div.col-span-2")
-            input_type = d_cols[-1].text.strip() if d_cols else ""
-
-            # Updated at → next sibling div after the grid row
-            # Text looks like "6995872bfe4c · 9 months ago"
-            try:
-                sibling = row.find_element(
-                    By.XPATH, "following-sibling::div[1]"
-                )
-                raw = sibling.text.replace('\xa0', ' ').strip()
-                # Extract just "X months/years ago" — split on " · "
-                if '·' in raw:
-                    updated_at = raw.split('·')[-1].strip()
-                else:
-                    updated_at = raw
-            except:
-                updated_at = None
-
-            if version:
-                result.append({
-                    "name": version,
-                    "size": size,
-                    "context": context,
-                    "input": input_type,
-                    "usage_command": f"ollama pull {version}",
-                    "updated_at": updated_at
+            response = requests.get(url, timeout=10)
+            soup = BeautifulSoup(response.content, "html.parser")
+            rows = soup.select("div.grid.grid-cols-12.items-center")
+            versions = []
+            for row in rows:
+                if "bg-neutral-50" in row.get("class",[]): continue  # skipping header
+                v_name_tag = row.select_one("span.col-span-6 a")
+                if not v_name_tag: continue
+                p_cols = row.select("p.col-span-2")
+                d_cols = row.select("div.col-span-2")
+                sibling = row.find_next_sibling("div")
+                raw = sibling.get_text(strip=True).replace("\xa0", " ") if sibling else ""
+                versions.append({
+                    "name": v_name_tag.text.strip(),
+                    "size": p_cols[0].text.strip() if len(p_cols) > 0 else "",
+                    "context": p_cols[1].text.strip() if len(p_cols) > 1 else "",
+                    "input": d_cols[-1].text.strip() if d_cols else "",
+                    "usage_command": f"ollama pull {v_name_tag.text.strip()}",
+                    "updated_at": raw.split("·")[-1].strip() if "·" in raw else raw
                 })
-        return result
+
+            return versions
+        except Exception:
+            return []
 
     @track_runtime(engine_name="selenium")
     def find_all_data(self):
-        # self.open_ollama()
-        # self.scroll_to_bottom()
         # 1. set up the capabilities
         self.set_capabilities()
         cards = self.driver.find_elements(By.XPATH, self.models_xpath)
@@ -166,19 +132,14 @@ class OllamaScraper:
                 continue
 
         results = []
-        for i, info in enumerate(basic_info_list):
-            name = info["model_name"]
-            print(f"  [{i + 1}/{len(basic_info_list)}] Fetching tags for {name}...")
-            try:
-                versions = self.get_model_tag_details(name)
-            except Exception as e:
-                print(f"  ⚠ Failed to get tags for {name}: {e}")
-                versions = []
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            future_to_model = {executor.submit(self.get_model_tag_details, m["model_name"]): m for m in basic_info_list}
+            for i, future in enumerate(as_completed(future_to_model), 1):
+                model_info = future_to_model[future]
+                model_info["versions"] = future.result()
+                results.append(model_info)
+                if i % 50 == 0: print(f"Completed {i}/{len(basic_info_list)}")
 
-            results.append({
-                **info,
-                "versions": versions,
-            })
         save_json(results)
         save_csv(results)
         print(f"Successfully archived {len(results)} models.")

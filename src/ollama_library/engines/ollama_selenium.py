@@ -124,8 +124,6 @@ class OllamaScraper:
 
     @track_runtime(engine_name="selenium")
     def find_all_data(self):
-        # self.open_ollama()
-        # self.scroll_to_bottom()
         # 1. set up the capabilities
         self.set_capabilities()
         cards = self.driver.find_elements(By.XPATH, self.models_xpath)
